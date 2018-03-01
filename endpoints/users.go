@@ -1,9 +1,6 @@
 package endpoints
 
 import (
-    "net/http"
-    "github.com/julienschmidt/httprouter"
-    "fmt"
     "github.com/jinzhu/gorm"
 )
 
@@ -34,6 +31,7 @@ func (e *Endpoints) GetUserHasObject(db *gorm.DB) []User {
 }
 
 //POST USER
-func (e *Endpoints) AddUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    fmt.Println("addUser")
+func (e *Endpoints) AddUser(db *gorm.DB, userData User) (User, error) {
+
+    return userData, nil
 }

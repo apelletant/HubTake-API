@@ -75,11 +75,13 @@ func main() {
 
 	//POST ROUTE FOR OBJECT
     	router.POST("/v1/objects/post/:objectName", addObject)
-    	router.POST("/v1/objects/borrow", updateObjectBorrowState)
-    	router.POST("/v1/objects/return", updateObjectReturnState)
 
     	//POST ROUTE FOR USERS
     	router.POST("/v1/User", addUser)
+
+    	//POST REQUEST FOR BORROW AND RETURN
+    	router.POST("v1/object/take", userTakeObject)
+    	router.POST("v1/object/return", userReturnObject)
 
 	panic(http.ListenAndServe(":8080", router))
 	db.Close()
@@ -88,8 +90,12 @@ func main() {
 //GET OBJECT
 func getObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
     o := ep.GetObjects(db)
-    rawBody, _ := json.Marshal(o)
-    writeResponse(w, 200, string(rawBody))
+    rawBody, err := json.Marshal(o)
+    if (err != nil) {
+	writeResponse(w, 404, "not found")
+    } else {
+	writeResponse(w, 204, string(rawBody))
+    }
     return
 }
 
@@ -152,7 +158,6 @@ func getUserByMail(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
     	u := ep.GetUserByMail(db, p.ByName("userEmailGet"))
     	rawBody, _ := json.Marshal(u)
     	writeResponse(w, 200, string(rawBody))
-	fmt.Println("getUserByMail")
 }
 
 func getUserHasObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -161,19 +166,42 @@ func getUserHasObject(w http.ResponseWriter, r *http.Request, p httprouter.Param
 
 //POST USER
 func addUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    /*expectedBody := struct { Name string }{}
+    var expectedBody endpoints.User
     if err := readJsonBody(r, &expectedBody); err != nil {
-	writeResponse(w, http.StatusInternalServerError,
+	writeResponse(w, http.StatusNotAcceptable,
 	    fmt.Sprintf("HubTake-api: %s", err.Error()))
 	return
     }
-    o, err := ep.AddObject(db, expectedBody.Name);
+    o, err := ep.AddUser(db, expectedBody);
     if err != nil {
 	writeResponse(w, http.StatusInternalServerError,
-	    "HubTake-api: add object error: "+err.Error())
+	    "HubTake-api: add object error: " + err.Error())
 	return
     } else {
 	writeJsonResponse(w, http.StatusOK, o)
     }
-    return*/
+    return
+}
+
+//POST BORROW AND RETURN
+
+func userTakeObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+    var expectedBody endpoints.BorrowReturnData
+    if err := readJsonBody(r, &expectedBody); err != nil {
+        writeResponse(w, http.StatusNotAcceptable,
+            fmt.Sprintf("HubTake-api: %s", err.Error()))
+        return
+    }
+    err := ep.UserTakeObject(db, expectedBody)
+    if err != nil {
+	writeResponse(w, http.StatusNotFound,
+	    fmt.Sprintf("HubTake-api: %s", err.Error()))
+	return
+    }
+    writeJsonResponse(w, http.StatusOK, expectedBody)
+    return
+}
+
+func userReturnObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type Endpoints struct {
-	db        *gorm.DB
+	db      *gorm.DB
 }
 
 type Object struct {
