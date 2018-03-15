@@ -7,7 +7,7 @@ type BorrowReturnData struct {
     ObjectName string
 }
 
-func (e *Endpoints) userReturnObject(db *gorm.DB, data BorrowReturnData) error {
+func (e *Endpoints) UserReturnObject(db *gorm.DB, data BorrowReturnData) error {
     return nil
 }
 

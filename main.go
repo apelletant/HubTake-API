@@ -35,7 +35,6 @@ func writeJsonResponse(w http.ResponseWriter, status int, body interface{}) {
 	writeResponse(w, status, string(rawBody))
 }
 
-
 //Read request body
 func readJsonBody(r *http.Request, expectedBody interface{}) error {
 	body, err := ioutil.ReadAll(r.Body)
@@ -54,7 +53,7 @@ func readJsonBody(r *http.Request, expectedBody interface{}) error {
 func main() {
 	var err error
 
-	db, err = gorm.Open("sqlite3", "/home/apelletant/go/HubTakeAPI/HubTake.db")
+	db, err = gorm.Open("sqlite3", "./HubTake.db")
 	if err != nil {
 		panic("Can't find Database")
 	}
@@ -80,8 +79,8 @@ func main() {
     	router.POST("/v1/User", addUser)
 
     	//POST REQUEST FOR BORROW AND RETURN
-    	router.POST("v1/object/take", userTakeObject)
-    	router.POST("v1/object/return", userReturnObject)
+    	router.POST("/v1/object/take", userTakeObject)
+    	router.POST("/v1/object/return", userReturnObject)
 
 	panic(http.ListenAndServe(":8080", router))
 	db.Close()
@@ -91,7 +90,7 @@ func main() {
 func getObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
     o := ep.GetObjects(db)
     rawBody, err := json.Marshal(o)
-    if (err != nil) {
+    if err != nil {
 	writeResponse(w, 404, "not found")
     } else {
 	writeResponse(w, 204, string(rawBody))
@@ -119,7 +118,6 @@ func getNotTakenObject(w http.ResponseWriter, r *http.Request, p httprouter.Para
     return
 }
 
-
 //POST OBJECT
 func addObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	expectedBody := struct { Name string }{}
@@ -137,14 +135,6 @@ func addObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		writeJsonResponse(w, http.StatusOK, o)
 	}
 	return
-}
-
-func updateObjectBorrowState(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    	fmt.Println("updateBorrowState")
-}
-
-func updateObjectReturnState(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    	fmt.Println("getTakenObject")
 }
 
 //GET USER
@@ -184,7 +174,6 @@ func addUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 }
 
 //POST BORROW AND RETURN
-
 func userTakeObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
     var expectedBody endpoints.BorrowReturnData
     if err := readJsonBody(r, &expectedBody); err != nil {
@@ -203,5 +192,18 @@ func userTakeObject(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }
 
 func userReturnObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-
+    	var expectedBody endpoints.BorrowReturnData
+	if err := readJsonBody(r, &expectedBody); err != nil {
+    		writeResponse(w, http.StatusNotAcceptable,
+		fmt.Sprintf("HubTake-api: %s", err.Error()))
+	    return
+	}
+   	err := ep.UserReturnObject(db, expectedBody)
+   	if err != nil {
+	writeResponse(w, http.StatusNotFound,
+    	fmt.Sprintf("HubTake-api: %s", err.Error()))
+	return
+   	}
+    	writeJsonResponse(w, http.StatusOK, expectedBody)
+    	return
 }
