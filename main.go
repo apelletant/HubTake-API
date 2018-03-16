@@ -19,9 +19,6 @@ var (
 	db *gorm.DB
 )
 
-//GUID: 0f0ea599d683
-
-
 //Write reponse function
 func writeResponse(w http.ResponseWriter, status int, body string) {
 	w.Header().Set("Content-Length", fmt.Sprintf("%v", len(body)))
@@ -58,7 +55,6 @@ func main() {
 		panic("Can't find Database")
 	}
 
-	//ep := ep.NewEndpoints(db)
 	router := httprouter.New()
 
 	//GET ROUTE FOR OBJECTS
@@ -82,20 +78,20 @@ func main() {
     	router.POST("/v1/object/take", userTakeObject)
     	router.POST("/v1/object/return", userReturnObject)
 
-	panic(http.ListenAndServe(":8080", router))
+	err = http.ListenAndServe(":8080", router)
+	if err != nil {
+		db.Close()
+		panic(err)
+	}
 	db.Close()
 }
 
 //GET OBJECT
 func getObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    o := ep.GetObjects(db)
-    rawBody, err := json.Marshal(o)
-    if err != nil {
-	writeResponse(w, 404, "not found")
-    } else {
-	writeResponse(w, 204, string(rawBody))
-    }
-    return
+	o := ep.GetObjects(db)
+	rawBody, _ := json.Marshal(o)
+	writeResponse(w, 200, string(rawBody))
+	return
 }
 
 func getObjectWithName(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -105,8 +101,11 @@ func getObjectWithName(w http.ResponseWriter, r *http.Request, p httprouter.Para
 }
 
 func getTakenObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    o := ep.GetTakenObject(db)
-    rawBody, _ := json.Marshal(o)
+	o := ep.GetTakenObject(db)
+	rawBody, err := json.Marshal(o)
+	if err != nil {
+		writeResponse(w, 404, "not found")
+	}
     writeResponse(w, 200, string(rawBody))
     return
 }
