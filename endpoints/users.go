@@ -32,6 +32,5 @@ func (e *Endpoints) GetUserHasObject(db *gorm.DB) []User {
 
 //POST USER
 func (e *Endpoints) AddUser(db *gorm.DB, userData User) (User, error) {
-
     return userData, nil
 }

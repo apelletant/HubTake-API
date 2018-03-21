@@ -27,7 +27,7 @@ func (e *Endpoints) AddObject(db *gorm.DB, objectName string) (Object, error) {
 		ObjectName: objectName,
 		ObjectIsTaken: 0,
 	}
-	e.db.Create(&object)
+	db.Create(&object)
 	return object, nil
 }
 

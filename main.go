@@ -119,19 +119,13 @@ func getNotTakenObject(w http.ResponseWriter, r *http.Request, p httprouter.Para
 
 //POST OBJECT
 func addObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	expectedBody := struct { Name string }{}
-	if err := readJsonBody(r, &expectedBody); err != nil {
-		writeResponse(w, http.StatusInternalServerError,
-			fmt.Sprintf("HubTake-api: %s", err.Error()))
-		return
-	}
-	o, err := ep.AddObject(db, expectedBody.Name);
+	_, err := ep.AddObject(db, p.ByName("objectName"))
 	if err != nil {
 		writeResponse(w, http.StatusInternalServerError,
 			"HubTake-api: add object error: "+err.Error())
 		return
 	} else {
-		writeJsonResponse(w, http.StatusOK, o)
+		writeResponse(w, 204, "object added correctly")
 	}
 	return
 }
