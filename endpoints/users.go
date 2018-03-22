@@ -3,6 +3,7 @@ package endpoints
 import (
 	"github.com/jinzhu/gorm"
 	"errors"
+	"fmt"
 )
 
 type User struct {
@@ -19,9 +20,10 @@ type UserPost struct {
 }
 
 func (e *Endpoints) GetUsers(db *gorm.DB) []User {
-    var users []User
-    db.Find(&users)
-    return users
+	var users []User
+	db.Find(&users)
+	fmt.Println(users)
+	return users
     }
 
 func (e *Endpoints) GetUserByMail(db *gorm.DB, mail string) User {

@@ -3,7 +3,7 @@ package endpoints
 import (
 	"github.com/jinzhu/gorm"
 	"time"
-	"errors"
+	"fmt"
 )
 
 type Endpoints struct {
@@ -57,12 +57,16 @@ func (e *Endpoints) GetNotTakenObject(db *gorm.DB) []Object {
 }
 
 
-func (e *Endpoints) DeleteObject(db *gorm.DB, name string) error {
+func (e *Endpoints) DeleteObject(db *gorm.DB, name string) bool {
 	var obj = Object{}
+	fmt.Println(name)
 	err := db.Where("object_name = ?", name).First(&obj).Error
+	fmt.Println(obj)
 	if err != nil {
-		return errors.New("Could'nt remove object")
+		return false
 	}
 	id := obj.ObjectId
-	return db.Delete(&obj, id).Error
+	fmt.Println(id)
+	db.Delete(&obj, id)
+	return true
 }
