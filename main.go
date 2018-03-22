@@ -75,8 +75,15 @@ func main() {
     	router.POST("/v1/User", addUser)
 
     	//POST REQUEST FOR BORROW AND RETURN
-    	router.POST("/v1/object/take", userTakeObject)
-    	router.POST("/v1/object/return", userReturnObject)
+    	router.POST("/v1/take", userTakeObject)
+    	router.POST("/v1/return", userReturnObject)
+
+	//GET user and object user borrow
+	router.GET("/v1/userObjectData/:email", userObjectData)
+
+	//DELETE route
+	router.DELETE("/v1/objects/:objectToDelete", deleteObject)
+	router.DELETE("/v1/users/:userToDelete", deleteUser)
 
 	err = http.ListenAndServe(":8080", router)
 	if err != nil {
@@ -96,7 +103,7 @@ func getObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func getObjectWithName(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
     o := ep.GetObjectByName(db, "name")
-    writeJsonResponse(w, http.StatusOK, o)
+    writeJsonResponse(w, 200, o)
     return
 }
 
@@ -199,4 +206,41 @@ func userReturnObject(w http.ResponseWriter, r *http.Request, p httprouter.Param
    	}
     	writeJsonResponse(w, http.StatusOK, expectedBody)
     	return
+}
+
+
+//GET user and object user borrow
+func userObjectData(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	mail := p.ByName("email")
+	fmt.Println(mail)
+}
+
+ //DELETE QUERY
+func deleteObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	name := p.ByName("objectToDelete")
+	err := ep.DeleteObject(db, name).Error
+	if err != nil {
+		writeResponse(w, 404,
+			fmt.Sprintf("HubTake-api: Not found"))
+		return
+	} else {
+		writeResponse(w, 200,
+			fmt.Sprintf("HubTake-api: Remove successfully"))
+	}
+	return
+}
+
+
+func deleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	mail := p.ByName("userToDelete")
+	err := ep.DeleteUser(db, mail)
+	if err != nil {
+		writeResponse(w, 404,
+			fmt.Sprintf("HubTake-api: Not found"))
+		return
+	} else {
+		writeResponse(w, 200,
+			fmt.Sprintf("HubTake-api: Remove successfully"))
+	}
+	return
 }

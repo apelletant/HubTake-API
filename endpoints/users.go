@@ -1,7 +1,8 @@
 package endpoints
 
 import (
-    "github.com/jinzhu/gorm"
+	"github.com/jinzhu/gorm"
+	"errors"
 )
 
 type User struct {
@@ -10,6 +11,11 @@ type User struct {
     UserLastName string		`gorm:"type:varchar"`
     UserObjectId int		`gorm:"type:int"`
     UserHasObject int		`gorm:"type:int"`
+}
+
+type UserPost struct {
+	UserFirstName string
+	UserLastName string
 }
 
 func (e *Endpoints) GetUsers(db *gorm.DB) []User {
@@ -33,4 +39,14 @@ func (e *Endpoints) GetUserHasObject(db *gorm.DB) []User {
 //POST USER
 func (e *Endpoints) AddUser(db *gorm.DB, userData User) (User, error) {
     return userData, nil
+}
+
+func (e *Endpoints) DeleteUser(db *gorm.DB, mail string) error {
+	var user = User{}
+	err := db.Where("user_email = ?", mail).First(&user).Error
+	if err != nil {
+		return errors.New("Could not find user to delete")
+	}
+	id := user.UserId;
+	return db.Delete(&user, id).Error
 }
