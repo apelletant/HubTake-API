@@ -66,7 +66,7 @@ func main() {
     	router.POST("/v1/objects/post/:objectName", addObject)
     	router.POST("/v1/users", addUser)
 
-	router.GET("/v1/userHasObject/", userObjectData)
+	router.GET("/v1/usersHasObject", userObjectData)
 	//TODO: BA UAI FAUT LES CODER BOLOSS !!!!!!!!!!!!!!!!!!!
     	//POST REQUEST FOR BORROW AND RETURN
     	router.POST("/v1/take", userTakeObject)
@@ -159,13 +159,13 @@ func addUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 func userTakeObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var expectedBody endpoints.BorrowReturnData
 	if err := readJsonBody(r, &expectedBody); err != nil {
-		writeResponse(w, http.StatusNotAcceptable,
+		writeResponse(w, 406,
 			fmt.Sprintf("HubTake-api: %s", err.Error()))
 		return
 	}
 	err := ep.UserTakeObject(db, expectedBody)
 	if err != nil {
-		writeResponse(w, http.StatusNotFound,
+		writeResponse(w, 404,
 			fmt.Sprintf("HubTake-api: %s", err.Error()))
 		return
 	}
