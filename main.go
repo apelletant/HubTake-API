@@ -64,7 +64,6 @@ func main() {
     	router.GET("/v1/users", getUsers)
     	router.GET("/v1/users/:userEmailGet", getUserByMail)
     	router.POST("/v1/objects/post/:objectName", addObject)
-
     	router.POST("/v1/users", addUser)
 
 	//TODO: BA UAI FAUT LES CODER BOLOSS !!!!!!!!!!!!!!!!!!!
