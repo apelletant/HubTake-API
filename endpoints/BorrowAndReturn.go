@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"fmt"
 	"time"
 	"strconv"
 
@@ -31,12 +30,8 @@ func (e *Endpoints) UserTakeObject(db *gorm.DB, data BorrowReturnData) error {
 	retDate := now.AddDate(0,0,2)
 	user := e.GetUserByMail(db, data.UserEmail)
 	obj := e.GetObjectByName(db, data.ObjectName)
-	fmt.Println(now)
-	fmt.Println(retDate)
-	fmt.Println(user)
-	fmt.Println(obj)
-
 	i, _ := strconv.Atoi(obj.ObjectId)
+
 	user.UserHasObject = 1
 	user.UserObjectId = i
 
@@ -44,12 +39,7 @@ func (e *Endpoints) UserTakeObject(db *gorm.DB, data BorrowReturnData) error {
 	obj.ObjectDateBorrow = now
 	obj.ObjectDateReturn = retDate
 
-	db.Model(&userTemp).Updates(User{UserObjectId: user.UserObjectId, UserHasObject: user.UserHasObject})
-	db.Model(&objTemp).Updates(Object{ObjectIsTaken: obj.ObjectIsTaken, ObjectDateBorrow: obj.ObjectDateBorrow, ObjectDateReturn: obj.ObjectDateReturn})
+	db.Model(&userTemp).Where("user_id = ?", user.UserId).Updates(User{UserObjectId: user.UserObjectId, UserHasObject: user.UserHasObject})
+	db.Model(&objTemp).Where("object_id = ?", obj.ObjectId).Updates(Object{ObjectIsTaken: obj.ObjectIsTaken, ObjectDateBorrow: obj.ObjectDateBorrow, ObjectDateReturn: obj.ObjectDateReturn})
 	return nil
 }
-
-/*
-func (e *Endpoints) UserObjectData(db *gorm.DB, email string) (ep.Object{} int, error) {
-	return nil, 1, nil
-}*/
