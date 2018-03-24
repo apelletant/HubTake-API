@@ -65,9 +65,7 @@ func main() {
     	router.GET("/v1/users/:userEmailGet", getUserByMail)
     	router.POST("/v1/objects/post/:objectName", addObject)
 
-	//TODO: BROKEN NEED FIX !!!!!!!!!!!!!!!!!!
-    	//POST ROUTE FOR USERS
-    	router.POST("/v1/user", addUser)
+    	router.POST("/v1/users", addUser)
 
 	//TODO: BA UAI FAUT LES CODER BOLOSS !!!!!!!!!!!!!!!!!!!
     	//POST REQUEST FOR BORROW AND RETURN
@@ -145,7 +143,7 @@ func getUserHasObject(w http.ResponseWriter, r *http.Request, p httprouter.Param
 }
 
 func addUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var expectedBody endpoints.User
+	var expectedBody endpoints.UserPost
 	if err := readJsonBody(r, &expectedBody); err != nil {
 		writeResponse(w, http.StatusNotAcceptable,
 			fmt.Sprintf("HubTake-api: %s", err.Error()))
@@ -169,13 +167,15 @@ func userTakeObject(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 			fmt.Sprintf("HubTake-api: %s", err.Error()))
 		return
 	}
+	fmt.Println("json err")
 	err := ep.UserTakeObject(db, expectedBody)
 	if err != nil {
 		writeResponse(w, http.StatusNotFound,
 			fmt.Sprintf("HubTake-api: %s", err.Error()))
 		return
 	}
-	writeJsonResponse(w, http.StatusOK, expectedBody)
+	fmt.Println("db error")
+	writeJsonResponse(w, 200, expectedBody)
 	return
 }
 

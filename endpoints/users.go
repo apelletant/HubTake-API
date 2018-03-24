@@ -18,6 +18,8 @@ type User struct {
 type UserPost struct {
 	UserFirstName string
 	UserLastName string
+	UserEmail string
+	UserPromo int
 }
 
 func (e *Endpoints) GetUsers(db *gorm.DB) []User {
@@ -38,8 +40,14 @@ func (e *Endpoints) GetUserHasObject(db *gorm.DB) []User {
 	return u
 }
 
-func (e *Endpoints) AddUser(db *gorm.DB, userData User) (User, error) {
-//	db.
+func (e *Endpoints) AddUser(db *gorm.DB, userData UserPost) (UserPost, error) {
+	var user User
+
+	user.UserFirstName = userData.UserFirstName
+	user.UserLastName = userData.UserLastName
+	user.UserEmail = userData.UserEmail
+	user.UserPromo = userData.UserPromo
+		db.Create(&user)
 	return userData, nil
 }
 
