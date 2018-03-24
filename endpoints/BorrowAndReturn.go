@@ -19,7 +19,26 @@ type UserObjectData struct {
 }
 
 func (e *Endpoints) UserReturnObject(db *gorm.DB, data BorrowReturnData) error {
-    return nil
+/*	var userTemp = User{}
+	var objTemp = Object{}*/
+
+	user := e.GetUserByMail(db, data.UserEmail)
+	obj := e.GetObjectByName(db, data.ObjectName)
+
+	user.UserObjectId = 0
+	user.UserHasObject = 0
+	obj.ObjectIsTaken = 0
+	obj.ObjectDateBorrow = time.Time{}
+	obj.ObjectDateReturn = time.Time{}
+
+	db.Save(&user)
+	db.Save(&obj)
+/*
+	db.Model(&userTemp).Where("user_id = ?", user.UserId).Updates(User{UserObjectId: 0, UserHasObject: 0})
+	db.Model(&objTemp).Where("object_id = ?", obj.ObjectId).Updates(Object{ObjectIsTaken: 0, ObjectDateBorrow: time.Time{}, ObjectDateReturn: time.Time{}})
+*/
+
+return nil
 }
 
 func (e *Endpoints) UserTakeObject(db *gorm.DB, data BorrowReturnData) error {
