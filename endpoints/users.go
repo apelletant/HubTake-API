@@ -3,16 +3,16 @@ package endpoints
 import (
 	"github.com/jinzhu/gorm"
 	"errors"
-	"fmt"
 )
 
 type User struct {
 	UserId string			`gorm:"primary_key;unique"`
 	UserFirstName string		`gorm:"type:text"`
 	UserLastName string		`gorm:"type:text"`
-	UserObjectId int		`gorm:"type:int"`
-	UserHasObject int		`gorm:"type:int"`
-	UserPromo int			`gorm:"type:int"`
+	UserEmail string		`gorm:"type:text"`
+	UserObjectId int		`gorm:"type:int, default:0"`
+	UserHasObject int		`gorm:"type:int, default:0"`
+	UserPromo int			`gorm:"type:int, default:1994"`
 }
 
 type UserPost struct {
@@ -23,10 +23,6 @@ type UserPost struct {
 func (e *Endpoints) GetUsers(db *gorm.DB) []User {
 	var users []User
 	db.Find(&users)
-	for _, user := range users {
-		fmt.Println("toto")
-		fmt.Println(user)
-	}
 	return users
     }
 
@@ -43,6 +39,7 @@ func (e *Endpoints) GetUserHasObject(db *gorm.DB) []User {
 }
 
 func (e *Endpoints) AddUser(db *gorm.DB, userData User) (User, error) {
+//	db.
 	return userData, nil
 }
 
