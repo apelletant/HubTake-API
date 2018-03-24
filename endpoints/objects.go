@@ -37,22 +37,28 @@ func (e *Endpoints) GetObjects(db *gorm.DB) []Object {
 	return objects
 }
 
+func (e *Endpoints) GetObjectById(db *gorm.DB, objId int) Object {
+	var obj = Object{}
+	db.Where("object_id = ?", objId).First(&obj)
+	return obj
+}
+
 func (e *Endpoints) GetObjectByName(db *gorm.DB, objName string) Object {
-    var obj = Object{}
-    db.Where("object_name = ?", objName).First(&obj)
-    return obj
+	var obj = Object{}
+	db.Where("object_name = ?", objName).First(&obj)
+	return obj
 }
 
 func (e *Endpoints) GetTakenObject(db *gorm.DB) []Object {
-    var objects []Object
-    db.Where("object_is_taken = ?", 1).Find(&objects)
-    return objects
+	var objects []Object
+	db.Where("object_is_taken = ?", 1).Find(&objects)
+	return objects
 }
 
 func (e *Endpoints) GetNotTakenObject(db *gorm.DB) []Object {
-    var objects []Object
-    db.Where("object_is_taken = ?", 0).Find(&objects)
-    return objects
+	var objects []Object
+	db.Where("object_is_taken = ?", 0).Find(&objects)
+	return objects
 }
 
 

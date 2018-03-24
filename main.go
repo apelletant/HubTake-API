@@ -66,6 +66,7 @@ func main() {
     	router.POST("/v1/objects/post/:objectName", addObject)
     	router.POST("/v1/users", addUser)
 
+	router.GET("/v1/userHasObject/", userObjectData)
 	//TODO: BA UAI FAUT LES CODER BOLOSS !!!!!!!!!!!!!!!!!!!
     	//POST REQUEST FOR BORROW AND RETURN
     	router.POST("/v1/take", userTakeObject)
@@ -137,10 +138,6 @@ func getUserByMail(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
     	writeResponse(w, 200, string(rawBody))
 }
 
-func getUserHasObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	fmt.Println("getUserHasObject")
-}
-
 func addUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var expectedBody endpoints.UserPost
 	if err := readJsonBody(r, &expectedBody); err != nil {
@@ -166,14 +163,12 @@ func userTakeObject(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 			fmt.Sprintf("HubTake-api: %s", err.Error()))
 		return
 	}
-	fmt.Println("json err")
 	err := ep.UserTakeObject(db, expectedBody)
 	if err != nil {
 		writeResponse(w, http.StatusNotFound,
 			fmt.Sprintf("HubTake-api: %s", err.Error()))
 		return
 	}
-	fmt.Println("db error")
 	writeJsonResponse(w, 200, expectedBody)
 	return
 }
@@ -187,22 +182,26 @@ func userReturnObject(w http.ResponseWriter, r *http.Request, p httprouter.Param
 	}
    	err := ep.UserReturnObject(db, expectedBody)
    	if err != nil {
-	writeResponse(w, http.StatusNotFound,
-    	fmt.Sprintf("HubTake-api: %s", err.Error()))
+		writeResponse(w, http.StatusNotFound,
+			fmt.Sprintf("HubTake-api: %s", err.Error()))
 	return
    	}
     	writeJsonResponse(w, http.StatusOK, expectedBody)
     	return
 }
 
-/*
+
 //GET user and object user borrow
 func userObjectData(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	mail := p.ByName("email")
-	o, status, err := ep.UserObjectData(db, mail)
-	fmt.Println(mail)
+	data, err := ep.GetUserObjectData(db)
+	if err != nil {
+		writeResponse(w, http.StatusNotFound,
+			fmt.Sprintf("HubTake-api: %s", err.Error()))
+	}
+	rawBody, _ := json.Marshal(data)
+	writeResponse(w, 200, string(rawBody))
 }
-*/
+
 
 func deleteObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var status bool

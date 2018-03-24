@@ -3,6 +3,7 @@ package endpoints
 import (
 	"github.com/jinzhu/gorm"
 	"errors"
+	"fmt"
 )
 
 type User struct {
@@ -22,6 +23,11 @@ type UserPost struct {
 	UserPromo int
 }
 
+type  UserObject struct {
+	UserData User
+	ObjectData Object
+}
+
 func (e *Endpoints) GetUsers(db *gorm.DB) []User {
 	var users []User
 	db.Find(&users)
@@ -30,13 +36,13 @@ func (e *Endpoints) GetUsers(db *gorm.DB) []User {
 
 func (e *Endpoints) GetUserByMail(db *gorm.DB, mail string) User {
 	var user = User{}
-	db.Where("user_mail = ?", mail).First(&user)
+	db.Where("user_email = ?", mail).First(&user)
 	return user
 }
 
 func (e *Endpoints) GetUserHasObject(db *gorm.DB) []User {
 	var u []User
-	db.Where("user_object_id = ?",  1).Find(&u)
+	db.Where("user_has_object = ?",  1).Find(&u)
 	return u
 }
 
@@ -59,4 +65,21 @@ func (e *Endpoints) DeleteUser(db *gorm.DB, mail string) error {
 	}
 	id := user.UserId;
 	return db.Delete(&user, id).Error
+}
+
+func (e *Endpoints) GetUserObjectData(db *gorm.DB) ([]UserObject, error) {
+	var dataObjUsr = []UserObject{}
+	var userObj = UserObject{}
+
+	users := e.GetUserHasObject(db)
+	if len(users) == 0 {
+		return nil, fmt.Errorf("no users got object")
+	}
+	for _, user := range users {
+		obj := e.GetObjectById(db, user.UserObjectId)
+		userObj.UserData = user
+		userObj.ObjectData = obj
+		dataObjUsr = append(dataObjUsr, userObj)
+	}
+	return dataObjUsr, nil
 }
