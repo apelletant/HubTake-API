@@ -7,6 +7,12 @@ type BorrowReturnData struct {
     ObjectName string
 }
 
+
+type UserObjectData struct {
+	UserData User
+	ObjectData Object
+}
+
 func (e *Endpoints) UserReturnObject(db *gorm.DB, data BorrowReturnData) error {
     return nil
 }

@@ -57,31 +57,23 @@ func main() {
 
 	router := httprouter.New()
 
-	//GET ROUTE FOR OBJECTS
 	router.GET("/v1/objects", getObject)
     	router.GET("/v1/objects/isTaken", getTakenObject)
     	router.GET("/v1/objects/notTaken", getNotTakenObject)
     	router.GET("/v1/objects/getByName/:name", getObjectWithName)
-
-    	//GET ROUTE FOR USER
     	router.GET("/v1/users", getUsers)
     	router.GET("/v1/users/:userEmailGet", getUserByMail)
-    	router.GET("/v1/usersHasObject", getUserHasObject)
-
-	//POST ROUTE FOR OBJECT
     	router.POST("/v1/objects/post/:objectName", addObject)
 
+	//TODO: BROKEN NEED FIX !!!!!!!!!!!!!!!!!!
     	//POST ROUTE FOR USERS
-    	router.POST("/v1/User", addUser)
+    	router.POST("/v1/user", addUser)
 
+	//TODO: BA UAI FAUT LES CODER BOLOSS !!!!!!!!!!!!!!!!!!!
     	//POST REQUEST FOR BORROW AND RETURN
     	router.POST("/v1/take", userTakeObject)
     	router.POST("/v1/return", userReturnObject)
 
-	//GET user and object user borrow
-//	router.GET("/v1/userObjectData/:email", userObjectData)
-
-	//DELETE route
 	router.DELETE("/v1/objects/:objectToDelete", deleteObject)
 	router.DELETE("/v1/users/:userToDelete", deleteUser)
 
@@ -93,7 +85,7 @@ func main() {
 	db.Close()
 }
 
-//GET OBJECT
+
 func getObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	o := ep.GetObjects(db)
 	rawBody, _ := json.Marshal(o)
@@ -102,9 +94,9 @@ func getObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 }
 
 func getObjectWithName(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    o := ep.GetObjectByName(db, "name")
-    writeJsonResponse(w, 200, o)
-    return
+	o := ep.GetObjectByName(db, "name")
+	writeJsonResponse(w, 200, o)
+	return
 }
 
 func getTakenObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -113,18 +105,17 @@ func getTakenObject(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 	if err != nil {
 		writeResponse(w, 404, "not found")
 	}
-    writeResponse(w, 200, string(rawBody))
-    return
+	writeResponse(w, 200, string(rawBody))
+	return
 }
 
 func getNotTakenObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    o := ep.GetNotTakenObject(db)
-    rawBody, _ := json.Marshal(o)
-    writeResponse(w, 200, string(rawBody))
-    return
+	o := ep.GetNotTakenObject(db)
+	rawBody, _ := json.Marshal(o)
+	writeResponse(w, 200, string(rawBody))
+	return
 }
 
-//POST OBJECT
 func addObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	_, err := ep.AddObject(db, p.ByName("objectName"))
 	if err != nil {
@@ -137,7 +128,6 @@ func addObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	return
 }
 
-//GET USER
 func getUsers(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
     	u := ep.GetUsers(db)
     	rawBody, _ := json.Marshal(u)
@@ -151,44 +141,42 @@ func getUserByMail(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 }
 
 func getUserHasObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    fmt.Println("getUserHasObject")
+	fmt.Println("getUserHasObject")
 }
 
-//POST USER
 func addUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    var expectedBody endpoints.User
-    if err := readJsonBody(r, &expectedBody); err != nil {
-	writeResponse(w, http.StatusNotAcceptable,
-	    fmt.Sprintf("HubTake-api: %s", err.Error()))
+	var expectedBody endpoints.User
+	if err := readJsonBody(r, &expectedBody); err != nil {
+		writeResponse(w, http.StatusNotAcceptable,
+			fmt.Sprintf("HubTake-api: %s", err.Error()))
+		return
+	}
+	o, err := ep.AddUser(db, expectedBody);
+	if err != nil {
+		writeResponse(w, http.StatusInternalServerError,
+			"HubTake-api: add object error: " + err.Error())
+		return
+	} else {
+		writeJsonResponse(w, http.StatusOK, o)
+	}
 	return
-    }
-    o, err := ep.AddUser(db, expectedBody);
-    if err != nil {
-	writeResponse(w, http.StatusInternalServerError,
-	    "HubTake-api: add object error: " + err.Error())
-	return
-    } else {
-	writeJsonResponse(w, http.StatusOK, o)
-    }
-    return
 }
 
-//POST BORROW AND RETURN
 func userTakeObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-    var expectedBody endpoints.BorrowReturnData
-    if err := readJsonBody(r, &expectedBody); err != nil {
-        writeResponse(w, http.StatusNotAcceptable,
-            fmt.Sprintf("HubTake-api: %s", err.Error()))
-        return
-    }
-    err := ep.UserTakeObject(db, expectedBody)
-    if err != nil {
-	writeResponse(w, http.StatusNotFound,
-	    fmt.Sprintf("HubTake-api: %s", err.Error()))
+	var expectedBody endpoints.BorrowReturnData
+	if err := readJsonBody(r, &expectedBody); err != nil {
+		writeResponse(w, http.StatusNotAcceptable,
+			fmt.Sprintf("HubTake-api: %s", err.Error()))
+		return
+	}
+	err := ep.UserTakeObject(db, expectedBody)
+	if err != nil {
+		writeResponse(w, http.StatusNotFound,
+			fmt.Sprintf("HubTake-api: %s", err.Error()))
+		return
+	}
+	writeJsonResponse(w, http.StatusOK, expectedBody)
 	return
-    }
-    writeJsonResponse(w, http.StatusOK, expectedBody)
-    return
 }
 
 func userReturnObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -217,7 +205,6 @@ func userObjectData(w http.ResponseWriter, r *http.Request, p httprouter.Params)
 }
 */
 
- //DELETE QUERY
 func deleteObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var status bool
 	name := p.ByName("objectToDelete")
@@ -226,10 +213,10 @@ func deleteObject(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	if status {
 		writeResponse(w, 200,
 			fmt.Sprintf("Remove successfully"))
-	} else {
-		writeResponse(w, 404,
-			fmt.Sprintf("Remove successfully"))
+		return
 	}
+	writeResponse(w, 404,
+		fmt.Sprintf("Remove successfully"))
 	return
 }
 
@@ -241,10 +228,8 @@ func deleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		writeResponse(w, 404,
 			fmt.Sprintf("HubTake-api: Not found"))
 		return
-	} else {
-		writeResponse(w, 200,
-			fmt.Sprintf("HubTake-api: Remove successfully"))
-		return
 	}
-	return 
+	writeResponse(w, 200,
+		fmt.Sprintf("HubTake-api: Remove successfully"))
+	return
 }
