@@ -195,8 +195,12 @@ func userReturnObject(w http.ResponseWriter, r *http.Request, p httprouter.Param
 func userObjectData(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	data, err := ep.GetUserObjectData(db)
 	if err != nil {
-		fmt.Println(err)
-		writeResponse(w, http.StatusNotFound,
+		if len(data) == 0 {
+			writeResponse(w, 204,
+				fmt.Sprintf("HubTake-api: %s", err.Error()))
+			return
+		}
+		writeResponse(w, 404,
 			fmt.Sprintf("HubTake-api: %s", err.Error()))
 		return
 	}
