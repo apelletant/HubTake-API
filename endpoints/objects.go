@@ -1,40 +1,43 @@
 package endpoints
 
 import (
-	"github.com/jinzhu/gorm"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 type Endpoints struct {
-	db      *gorm.DB
+	db *gorm.DB
 }
 
 type Object struct {
-	ObjectId string 		`gorm:"primary_key;unique"`
-	ObjectName string		`gorm:"type:text"`
-	ObjectIsTaken int		`gorm:"type:int"`
-	ObjectDateBorrow time.Time	`gorm:"type:date"`
-	ObjectDateReturn time.Time	`gorm:"type:date"`
+	ObjectID         int       `gorm:"primary_key;unique"`
+	ObjectName       string    `gorm:"type:text"`
+	ObjectIsTaken    int       `gorm:"type:int"`
+	ObjectDateBorrow time.Time `gorm:"type:date"`
+	ObjectDateReturn time.Time `gorm:"type:date"`
 }
 
-//NewEndpoint create a new EndPoints object
+//NewEndpoints create a new EndPoints object
 func (e *Endpoints) NewEndpoints(db *gorm.DB) *Endpoints {
 	return &Endpoints{db: db}
 }
 
 func (e *Endpoints) AddObject(db *gorm.DB, objectName string) (Object, error) {
 	object := Object{
-		ObjectName: objectName,
+		ObjectName:    objectName,
 		ObjectIsTaken: 0,
 	}
 	db.Create(&object)
 	return object, nil
 }
 
-func (e *Endpoints) GetObjects(db *gorm.DB) []Object {
+func (e *Endpoints) GetObjects(db *gorm.DB) ([]Object, error) {
 	var objects []Object
-    	db.Find(&objects)
-	return objects
+	if err := db.Find(&objects).Error; err != nil {
+		return nil, err
+	}
+	return objects, nil
 }
 
 func (e *Endpoints) GetObjectById(db *gorm.DB, objId int) Object {
@@ -61,14 +64,13 @@ func (e *Endpoints) GetNotTakenObject(db *gorm.DB) []Object {
 	return objects
 }
 
-
 func (e *Endpoints) DeleteObject(db *gorm.DB, name string) bool {
 	var obj = Object{}
 	err := db.Where("object_name = ?", name).First(&obj).Error
 	if err != nil {
 		return false
 	}
-	id := obj.ObjectId
+	id := obj.ObjectID
 	db.Delete(&obj, id)
 	return true
 }
