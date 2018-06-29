@@ -35,8 +35,39 @@ type UserCommand struct {
 	Color  string
 }
 
-func addCommand(db *gorm.DB) error {
-	return nil
+//AddCommand definition of addCommand body
+type AddCommand struct {
+	Email        string
+	PlasticColor string
+	URLModel     string
+	Length       int
+}
+
+func (e *Endpoints) AddCommand(db *gorm.DB, cmdData AddCommand) (AddCommand, error) {
+	var cmd Command
+
+	user := e.GetUserByMail(db, cmdData.Email)
+	pla, err := e.GetPlasticByColor(db, cmdData.PlasticColor)
+	if err != nil {
+		return cmdData, err
+	}
+	cmd.CommandModel = cmdData.URLModel
+	cmd.CommandIDUser, err = strconv.Atoi(user.UserId)
+	if err != nil {
+		return cmdData, err
+	}
+	cmd.CommandIDUser = pla.PlasticID
+	price, err := strconv.Atoi(pla.PlasticPrice)
+	if err != nil {
+		return cmdData, err
+	}
+	cmd.CommandPrice = cmdData.Length * price
+	cmd.CommandLength = cmdData.Length
+	err = db.Create(&cmd).Error
+	if err != nil {
+		return cmdData, err
+	}
+	return cmdData, nil
 }
 
 func (e *Endpoints) GetCommands(db *gorm.DB) ([]Command, error) {

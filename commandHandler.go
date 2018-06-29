@@ -10,7 +10,20 @@ import (
 )
 
 func addCommand(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	fmt.Println("function: addCommand")
+	var expectedBody endpoints.addCommand
+	if err := readJSONBody(r, &expectedBody); err != nil {
+		writeResponse(w, http.StatusNotAcceptable,
+			fmt.Sprintf("HubTake-api: %s", err.Error()))
+		return
+	}
+	o, err := ep.AddCommand(db, expectedBody)
+	if err != nil {
+		writeResponse(w, http.StatusNotAcceptable,
+			fmt.Sprintf("HubTake-api: color already exists"))
+		return
+	}
+	writeJSONResponse(w, http.StatusOK, o)
+	return
 }
 
 func getCommands(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
