@@ -54,3 +54,11 @@ func (e *Endpoints) GetPlasticByColor(db *gorm.DB, color string) (Plastic, error
 	}
 	return pla, nil
 }
+
+func getPlasticByID(db *gorm.DB, plasticID int) (Plastic, error) {
+	var pla Plastic
+	if err := db.Where("plastic_id = ?", plasticID).First(&pla).Error; err != nil {
+		return pla, err
+	}
+	return pla, nil
+}

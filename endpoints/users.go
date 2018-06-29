@@ -84,3 +84,11 @@ func (e *Endpoints) GetUserObjectData(db *gorm.DB) ([]UserObject, error) {
 	}
 	return dataObjUsr, nil
 }
+
+func getUserByID(db *gorm.DB, userID int) (User, error) {
+	var user User
+	if err := db.Where("user_id = ?", userID).First(&user).Error; err != nil {
+		return user, err
+	}
+	return user, nil
+}
