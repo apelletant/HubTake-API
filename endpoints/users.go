@@ -41,6 +41,15 @@ func (e *Endpoints) GetUserByMail(db *gorm.DB, mail string) User {
 	return user
 }
 
+func (e *Endpoints) GetUserByID(db *gorm.DB, id string) (User, error) {
+	var user = User{}
+	err := db.Where("user_id = ?", id).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
 func (e *Endpoints) GetUserHasObject(db *gorm.DB) []User {
 	var u []User
 	db.Where("user_has_object = ?", 1).Find(&u)

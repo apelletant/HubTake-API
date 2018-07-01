@@ -66,6 +66,7 @@ func main() {
 	router.GET("/v1/objects/getByName/:name", getObjectWithName)
 	router.GET("/v1/users", getUsers)
 	router.GET("/v1/users/:userEmailGet", getUserByMail)
+	router.GET("/v1/user/byID/:userId", getUserByID)
 	router.POST("/v1/objects/post/:objectName", addObject)
 	router.POST("/v1/users", addUser)
 
@@ -78,7 +79,7 @@ func main() {
 	router.GET("/v1/plastic", getPlastics)
 	router.GET("/v1/plastic/:plasticColor", getPlasticByColor)
 
-	router.POST("/v1/addCommand", addCommand)
+	router.POST("/v1/command", addCommand)
 	router.GET("/v1/command", getCommands)
 	router.GET("/v1/command/:customerName", getCommandCustomer)
 	router.DELETE("/v1/command/:idCommand", deleteCommand)

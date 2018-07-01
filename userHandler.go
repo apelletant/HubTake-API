@@ -25,6 +25,22 @@ func getUserByMail(w http.ResponseWriter, r *http.Request, p httprouter.Params) 
 	writeResponse(w, 200, string(rawBody))
 }
 
+func getUserByID(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	u, err := ep.GetUserByID(db, p.ByName("userId"))
+	if err != nil {
+		writeResponse(w, http.StatusNotAcceptable,
+			fmt.Sprintf("HubTake-api: %s", err.Error()))
+		return
+	}
+	rawBody, err := json.Marshal(u)
+	if err != nil {
+		writeResponse(w, http.StatusNotAcceptable,
+			fmt.Sprintf("HubTake-api: %s", err.Error()))
+		return
+	}
+	writeResponse(w, 200, string(rawBody))
+}
+
 func addUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var expectedBody endpoints.UserPost
 	if err := readJSONBody(r, &expectedBody); err != nil {

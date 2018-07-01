@@ -40,7 +40,7 @@ type AddCommand struct {
 	Email        string
 	PlasticColor string
 	URLModel     string
-	Length       int
+	Length       string
 }
 
 func (e *Endpoints) AddCommand(db *gorm.DB, cmdData AddCommand) (AddCommand, error) {
@@ -56,15 +56,23 @@ func (e *Endpoints) AddCommand(db *gorm.DB, cmdData AddCommand) (AddCommand, err
 	if err != nil {
 		return cmdData, err
 	}
-	cmd.CommandIDUser = pla.PlasticID
+	cmd.CommandIDPlastic = pla.PlasticID
+
 	price, err := strconv.Atoi(pla.PlasticPrice)
+	if err != nil {
+
+		return cmdData, err
+	}
+	length, err := strconv.Atoi(cmdData.Length)
 	if err != nil {
 		return cmdData, err
 	}
-	cmd.CommandPrice = cmdData.Length * price
-	cmd.CommandLength = cmdData.Length
+	cmd.CommandPrice = length * price
+	cmd.CommandLength = length
+
 	err = db.Create(&cmd).Error
 	if err != nil {
+
 		return cmdData, err
 	}
 	return cmdData, nil

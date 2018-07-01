@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"strconv"
 
+	"./endpoints"
 	"github.com/julienschmidt/httprouter"
 )
 
 func addCommand(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	var expectedBody endpoints.addCommand
+	var expectedBody endpoints.AddCommand
 	if err := readJSONBody(r, &expectedBody); err != nil {
 		writeResponse(w, http.StatusNotAcceptable,
 			fmt.Sprintf("HubTake-api: %s", err.Error()))
