@@ -9,6 +9,14 @@ All the documention for the packages used, are available on their github reposit
   <li><a href="github.com/jinzhu/gorm">goRM</a></li>
 </ul>
 
+
+# TODO:
+<ul>
+  <li>Proper Documentation</li>
+  <li>Add an auth sytem</li>
+</ul>
+
+
 # Routes
 <h2>User</h2>
 <h3>POST</h3>
